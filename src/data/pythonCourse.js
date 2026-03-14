@@ -6,6 +6,205 @@ export const COURSE = {
   units: [
     // ══════════════════════════════════════════════════════════════════
     {
+      id: 'unit_0',
+      title: 'Introduction',
+      description: 'C\'est quoi coder ?',
+      color: '#FFC800', darkColor: '#E0A800', icon: '🚀',
+      lessons: [
+        // ─────────────────────────────────────────────────────────────
+        {
+          id: 'lesson_0_1', title: 'C\'est quoi coder ?', icon: '💡',
+          description: 'Découvrir la programmation', xp: 5, status: 'active',
+          exercises: [
+            {
+              id: 'e1', type: 'multiple_choice',
+              question: 'C\'est quoi un programme informatique ?',
+              options: [
+                { id: 'a', text: 'Une suite d\'instructions que l\'ordinateur exécute', correct: true },
+                { id: 'b', text: 'Un logiciel qu\'on achète dans un magasin', correct: false },
+                { id: 'c', text: 'Un fichier Word ou Excel', correct: false },
+                { id: 'd', text: 'Un virus informatique', correct: false },
+              ],
+              explanation: 'Un programme, c\'est une liste d\'instructions précises que l\'ordinateur suit dans l\'ordre.',
+            },
+            {
+              id: 'e2', type: 'multiple_choice',
+              question: 'Pourquoi apprendre à coder ?',
+              options: [
+                { id: 'a', text: 'Pour créer des apps, sites, jeux et automatiser des tâches', correct: true },
+                { id: 'b', text: 'Pour réparer les ordinateurs cassés', correct: false },
+                { id: 'c', text: 'Pour pirater des comptes', correct: false },
+                { id: 'd', text: 'Pour taper plus vite au clavier', correct: false },
+              ],
+              explanation: 'Le code permet de créer des applications, des sites web, des jeux, des IA... et bien plus !',
+            },
+            {
+              id: 'e3', type: 'multiple_choice',
+              question: 'Qu\'est-ce qu\'un langage de programmation ?',
+              options: [
+                { id: 'a', text: 'Un langage que les humains et les ordinateurs comprennent tous les deux', correct: true },
+                { id: 'b', text: 'Une langue étrangère comme l\'anglais ou le chinois', correct: false },
+                { id: 'c', text: 'Le langage que parlent les robots', correct: false },
+                { id: 'd', text: 'Un code secret militaire', correct: false },
+              ],
+              explanation: 'Un langage de programmation est un intermédiaire entre les humains et la machine.',
+            },
+            {
+              id: 'e4', type: 'multiple_choice',
+              question: 'Un ordinateur comprend directement le français ou l\'anglais ?',
+              options: [
+                { id: 'a', text: 'Non, il ne comprend que des 0 et des 1 (binaire)', correct: true },
+                { id: 'b', text: 'Oui, si on parle lentement', correct: false },
+                { id: 'c', text: 'Oui, mais seulement l\'anglais', correct: false },
+                { id: 'd', text: 'Non, il comprend les mathématiques', correct: false },
+              ],
+              explanation: 'Les ordinateurs ne parlent que le binaire (0/1). Les langages de prog font la traduction.',
+            },
+            {
+              id: 'e5', type: 'multiple_choice',
+              question: 'Lequel n\'est PAS un langage de programmation ?',
+              options: [
+                { id: 'a', text: 'HTML', correct: true },
+                { id: 'b', text: 'Python', correct: false },
+                { id: 'c', text: 'JavaScript', correct: false },
+                { id: 'd', text: 'Java', correct: false },
+              ],
+              explanation: 'HTML est un langage de balisage (structure), pas de programmation. Python, JS, Java sont des langages de prog.',
+            },
+            {
+              id: 'e6', type: 'multiple_choice',
+              question: 'Quand tu donnes des instructions à un humain, tu dois être :',
+              options: [
+                { id: 'a', text: 'Très précis et dans le bon ordre', correct: true },
+                { id: 'b', text: 'Approximatif, il comprendra', correct: false },
+                { id: 'c', text: 'En désordre, ça marche aussi', correct: false },
+                { id: 'd', text: 'Très rapide pour aller vite', correct: false },
+              ],
+              explanation: 'Un ordinateur suit les instructions à la lettre. Une erreur → le programme plante !',
+            },
+            {
+              id: 'e7', type: 'multiple_choice',
+              question: 'Les erreurs dans le code s\'appellent :',
+              options: [
+                { id: 'a', text: 'Des bugs', correct: true },
+                { id: 'b', text: 'Des virus', correct: false },
+                { id: 'c', text: 'Des glitches', correct: false },
+                { id: 'd', text: 'Des crashs', correct: false },
+              ],
+              explanation: 'Un bug est une erreur dans le code. Corriger les bugs = "déboguer" (debugging).',
+            },
+            {
+              id: 'e8', type: 'multiple_choice',
+              question: 'Qui peut apprendre à coder ?',
+              options: [
+                { id: 'a', text: 'Tout le monde, quel que soit l\'âge', correct: true },
+                { id: 'b', text: 'Seulement les matheux', correct: false },
+                { id: 'c', text: 'Seulement les ingénieurs', correct: false },
+                { id: 'd', text: 'Seulement ceux qui parlent anglais', correct: false },
+              ],
+              explanation: 'N\'importe qui peut apprendre à coder. Il suffit de commencer !',
+            },
+          ],
+        },
+        // ─────────────────────────────────────────────────────────────
+        {
+          id: 'lesson_0_2', title: 'Python, c\'est quoi ?', icon: '🐍',
+          description: 'Découvrir le langage Python', xp: 5, status: 'locked',
+          exercises: [
+            {
+              id: 'e1', type: 'multiple_choice',
+              question: 'Python est un langage de programmation :',
+              options: [
+                { id: 'a', text: 'Simple, puissant et très populaire', correct: true },
+                { id: 'b', text: 'Réservé aux scientifiques', correct: false },
+                { id: 'c', text: 'Uniquement pour les sites web', correct: false },
+                { id: 'd', text: 'Qui parle uniquement de serpents', correct: false },
+              ],
+              explanation: 'Python est l\'un des langages les plus populaires au monde, utilisé dans presque tous les domaines.',
+            },
+            {
+              id: 'e2', type: 'multiple_choice',
+              question: 'À quoi sert Python dans la vraie vie ?',
+              options: [
+                { id: 'a', text: 'IA, data, web, automatisation, scripts... tout !', correct: true },
+                { id: 'b', text: 'Uniquement pour les jeux vidéo', correct: false },
+                { id: 'c', text: 'Seulement pour les applications mobiles', correct: false },
+                { id: 'd', text: 'Pour contrôler des robots uniquement', correct: false },
+              ],
+              explanation: 'Python est utilisé partout : Instagram, Netflix, NASA, Google... et plein de startups !',
+            },
+            {
+              id: 'e3', type: 'multiple_choice',
+              question: 'Comment s\'écrit la première instruction Python que tout le monde apprend ?',
+              options: [
+                { id: 'a', text: 'print("Hello, World!")', correct: true },
+                { id: 'b', text: 'console.log("Hello, World!")', correct: false },
+                { id: 'c', text: 'echo "Hello, World!"', correct: false },
+                { id: 'd', text: 'System.out.println("Hello, World!")', correct: false },
+              ],
+              explanation: 'En Python, print() est la fonction pour afficher du texte. C\'est souvent le premier programme qu\'on écrit !',
+            },
+            {
+              id: 'e4', type: 'multiple_choice',
+              question: 'Python a été créé en quelle année ?',
+              options: [
+                { id: 'a', text: '1991', correct: true },
+                { id: 'b', text: '2005', correct: false },
+                { id: 'c', text: '1975', correct: false },
+                { id: 'd', text: '2010', correct: false },
+              ],
+              explanation: 'Python a été créé par Guido van Rossum en 1991. C\'est un langage mature et stable !',
+            },
+            {
+              id: 'e5', type: 'multiple_choice',
+              question: 'Pourquoi Python est parfait pour débuter ?',
+              options: [
+                { id: 'a', text: 'Sa syntaxe ressemble à du texte naturel, facile à lire', correct: true },
+                { id: 'b', text: 'Il n\'a pas de règles strictes', correct: false },
+                { id: 'c', text: 'Il est en français', correct: false },
+                { id: 'd', text: 'Il se code avec la souris', correct: false },
+              ],
+              explanation: 'Python lit presque comme du français/anglais. Ex: "if age > 18: print(\'majeur\')" se comprend naturellement.',
+            },
+            {
+              id: 'e6', type: 'multiple_choice',
+              question: 'Une instruction Python = :',
+              options: [
+                { id: 'a', text: 'Une action que Python va effectuer', correct: true },
+                { id: 'b', text: 'Un paragraphe de texte', correct: false },
+                { id: 'c', text: 'Un fichier entier', correct: false },
+                { id: 'd', text: 'Un bouton dans l\'app', correct: false },
+              ],
+              explanation: 'Chaque ligne de code Python est une instruction que Python exécute dans l\'ordre.',
+            },
+            {
+              id: 'e7', type: 'multiple_choice',
+              question: 'Pour tester du code Python, on peut utiliser :',
+              options: [
+                { id: 'a', text: 'Un terminal, un notebook, ou une app comme celle-ci !', correct: true },
+                { id: 'b', text: 'Seulement un superordinateur', correct: false },
+                { id: 'c', text: 'Uniquement sous Windows', correct: false },
+                { id: 'd', text: 'Un câble USB spécial', correct: false },
+              ],
+              explanation: 'Python tourne partout : Mac, Windows, Linux, et même dans le navigateur ou des apps d\'apprentissage !',
+            },
+            {
+              id: 'e8', type: 'multiple_choice',
+              question: 'Qu\'est-ce que tu vas apprendre dans cette app ?',
+              options: [
+                { id: 'a', text: 'Les bases de Python, étape par étape', correct: true },
+                { id: 'b', text: 'À construire des fusées', correct: false },
+                { id: 'c', text: 'Le langage C++', correct: false },
+                { id: 'd', text: 'La comptabilité', correct: false },
+              ],
+              explanation: 'Tu vas apprendre Python progressivement : variables, conditions, boucles, fonctions et listes !',
+            },
+          ],
+        },
+      ],
+    },
+    // ══════════════════════════════════════════════════════════════════
+    {
       id: 'unit_1',
       title: 'Les Bases',
       description: 'Variables, types et print',
@@ -14,7 +213,7 @@ export const COURSE = {
         // ─────────────────────────────────────────────────────────────
         {
           id: 'lesson_1_1', title: 'Hello World', icon: '👋',
-          description: 'Ton premier programme Python', xp: 10, status: 'active',
+          description: 'Ton premier programme Python', xp: 10, status: 'locked',
           exercises: [
             {
               id: 'e1', type: 'multiple_choice',
@@ -540,11 +739,12 @@ export const COURSE = {
               explanation: '.replace() remplace TOUTES les occurrences.',
             },
             {
-              id: 'e10', type: 'code_order',
-              question: 'Construit une f-string qui dit "Salut Bob" :',
-              words: ['=', 'f"Salut', '"Bob"', 'nom', '{nom}"', 'msg'],
-              answer: 'nom = "Bob"\nmsg = f"Salut {nom}"',
-              explanation: 'Assigne d\'abord la variable, puis utilise-la dans la f-string.',
+              id: 'e10', type: 'fill_blank',
+              question: 'Complète la f-string pour afficher "Salut Bob" :',
+              code: 'nom = "Bob"\nresult = f"Salut {___}"',
+              answer: 'nom',
+              hint: 'La variable qui contient le prénom...',
+              explanation: 'Dans une f-string, on met le nom de la variable entre { }.',
             },
           ],
         },
@@ -615,11 +815,12 @@ export const COURSE = {
               explanation: 'Python utilise l\'indentation pour délimiter les blocs. C\'est obligatoire !',
             },
             {
-              id: 'e6', type: 'code_order',
-              question: 'Construis un if qui affiche "positif" si x > 0 :',
-              words: ['if', 'x', '>', '0:', 'print("positif")'],
-              answer: 'if x > 0:\n    print("positif")',
-              explanation: 'if condition: puis le bloc indenté.',
+              id: 'e6', type: 'fill_blank',
+              question: 'Complète la condition pour tester si x est positif :',
+              code: 'if x ___ 0:\n    print("positif")',
+              answer: '>',
+              hint: 'L\'opérateur "strictement supérieur à"...',
+              explanation: '> teste si x est strictement supérieur à 0.',
             },
             {
               id: 'e7', type: 'multiple_choice',
@@ -1067,11 +1268,12 @@ export const COURSE = {
               explanation: 'while True: ne s\'arrête jamais sans break.',
             },
             {
-              id: 'e7', type: 'code_order',
-              question: 'Construis une boucle while qui tourne 5 fois :',
-              words: ['i = 0', 'while', 'i < 5:', 'i += 1'],
-              answer: 'i = 0\nwhile i < 5:\n    i += 1',
-              explanation: 'Initialise, condition de sortie, et incrémente !',
+              id: 'e7', type: 'fill_blank',
+              question: 'Complète la condition de la boucle while (5 tours) :',
+              code: 'i = 0\nwhile i ___ 5:\n    i += 1',
+              answer: '<',
+              hint: 'La condition d\'arrêt : i doit être inférieur à...',
+              explanation: 'while i < 5: tourne tant que i est inférieur à 5 (5 tours : 0,1,2,3,4).',
             },
             {
               id: 'e8', type: 'multiple_choice',
@@ -1184,10 +1386,10 @@ export const COURSE = {
             },
             {
               id: 'e7', type: 'code_order',
-              question: 'Construis une fonction qui renvoie le carré de n :',
-              words: ['def', 'carre(n):', 'return', 'n ** 2'],
-              answer: 'def carre(n):\n    return n ** 2',
-              explanation: 'def nom(paramètre): puis return le résultat.',
+              question: 'Construis la ligne qui renvoie n au carré :',
+              words: ['return', 'n', '**', '2'],
+              answer: 'return n ** 2',
+              explanation: 'return renvoie la valeur. ** est l\'opérateur puissance.',
             },
             {
               id: 'e8', type: 'multiple_choice',

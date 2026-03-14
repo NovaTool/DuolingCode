@@ -1,4 +1,4 @@
-import React, { useState, useRef, useMemo } from 'react';
+import React, { useState, useRef, useMemo, useEffect } from 'react';
 import {
   View, Text, TouchableOpacity, StyleSheet,
   ScrollView, Animated, TextInput, KeyboardAvoidingView, Platform,
@@ -11,7 +11,52 @@ import ProgressBar from '../components/ProgressBar';
 
 const NONE = 'none', CORRECT = 'correct', WRONG = 'wrong';
 
-// ── Word-order chips ───────────────────────────────────────────────────────
+// ── Particle burst on correct answer ─────────────────────────────────────
+const BURST_COLORS = ['#FFD700','#58CC02','#1CB0F6','#FF4B4B','#CE82FF','#FF9600','#FFFFFF'];
+function BurstEffect({ trigger }) {
+  const particles = useRef(
+    Array.from({ length: 8 }, () => ({
+      x: new Animated.Value(0), y: new Animated.Value(0),
+      opacity: new Animated.Value(0), scale: new Animated.Value(0),
+    }))
+  ).current;
+
+  useEffect(() => {
+    if (!trigger) return;
+    const angles = [0, 45, 90, 135, 180, 225, 270, 315];
+    const anims = particles.map((p, i) => {
+      const rad = (angles[i] * Math.PI) / 180;
+      const dist = 55 + Math.random() * 30;
+      p.x.setValue(0); p.y.setValue(0); p.opacity.setValue(0); p.scale.setValue(0);
+      return Animated.sequence([
+        Animated.parallel([
+          Animated.spring(p.scale, { toValue: 1, useNativeDriver: true, speed: 40 }),
+          Animated.timing(p.opacity, { toValue: 1, duration: 80, useNativeDriver: true }),
+          Animated.timing(p.x, { toValue: Math.cos(rad) * dist, duration: 450, useNativeDriver: true }),
+          Animated.timing(p.y, { toValue: Math.sin(rad) * dist, duration: 450, useNativeDriver: true }),
+        ]),
+        Animated.timing(p.opacity, { toValue: 0, duration: 250, useNativeDriver: true }),
+      ]);
+    });
+    Animated.stagger(20, anims).start();
+  }, [trigger]);
+
+  return (
+    <View style={StyleSheet.absoluteFill} pointerEvents="none">
+      {particles.map((p, i) => (
+        <Animated.View key={i} style={{
+          position: 'absolute', top: '50%', left: '50%',
+          width: 10, height: 10, borderRadius: 5,
+          backgroundColor: BURST_COLORS[i % BURST_COLORS.length],
+          transform: [{ translateX: p.x }, { translateY: p.y }, { scale: p.scale }],
+          opacity: p.opacity,
+        }} />
+      ))}
+    </View>
+  );
+}
+
+// ── Word-order chips ──────────────────────────────────────────────────────
 function WordOrderExercise({ words, onAnswerChange, feedback, C }) {
   const [available, setAvailable] = useState(() =>
     [...words].sort(() => Math.random() - 0.5).map((w, i) => ({ id: i, text: w }))
@@ -23,43 +68,45 @@ function WordOrderExercise({ words, onAnswerChange, feedback, C }) {
     const next = [...placed, word];
     setAvailable(a => a.filter(w => w.id !== word.id));
     setPlaced(next);
-    onAnswerChange(next.map(w => w.text).join(''));
+    onAnswerChange(next.map(w => w.text).join(' '));
   };
   const remove = (word) => {
     if (feedback !== NONE) return;
     const next = placed.filter(w => w.id !== word.id);
     setAvailable(a => [...a, word].sort((x, y) => x.id - y.id));
     setPlaced(next);
-    onAnswerChange(next.map(w => w.text).join(''));
+    onAnswerChange(next.map(w => w.text).join(' '));
   };
-
-  const isOk = feedback === CORRECT, isErr = feedback === WRONG;
 
   return (
     <View style={{ gap: 12 }}>
-      <View style={[
-        wo.zone,
-        { borderColor: isOk ? C.green : isErr ? C.red : C.border, backgroundColor: isOk ? C.greenLight : isErr ? C.redLight : C.backgroundCard },
-      ]}>
+      <View style={[wo.zone, {
+        borderColor: feedback === CORRECT ? C.green : feedback === WRONG ? C.red : C.border,
+        backgroundColor: feedback === CORRECT ? C.greenLight : feedback === WRONG ? C.redLight : C.backgroundCard,
+      }]}>
         {placed.length === 0
-          ? <Text style={{ color: C.textLight, fontSize: 14, fontStyle: 'italic' }}>Tape les mots dans le bon ordre...</Text>
+          ? <Text style={{ color: C.textLight, fontSize: 14, fontStyle: 'italic' }}>
+              Tape les mots dans le bon ordre...
+            </Text>
           : <View style={wo.row}>
               {placed.map(w => (
-                <TouchableOpacity key={w.id} onPress={() => remove(w)} style={[
-                  wo.chip, wo.chipPlaced,
-                  { borderColor: isOk ? C.green : isErr ? C.red : C.blue, backgroundColor: C.blue + '22' },
-                ]}>
-                  <Text style={[wo.chipTxt, { color: isOk ? C.green : isErr ? C.red : C.blue }]}>{w.text}</Text>
+                <TouchableOpacity key={w.id} onPress={() => remove(w)} style={[wo.chip, {
+                  borderColor: feedback === CORRECT ? C.green : feedback === WRONG ? C.red : C.blue,
+                  backgroundColor: feedback === CORRECT ? C.greenLight : feedback === WRONG ? C.redLight : C.blue + '22',
+                }]}>
+                  <Text style={[wo.txt, { color: feedback === CORRECT ? C.green : feedback === WRONG ? C.red : C.blue }]}>
+                    {w.text}
+                  </Text>
                 </TouchableOpacity>
               ))}
             </View>
         }
       </View>
-      <View style={[wo.divider, { backgroundColor: C.border }]} />
+      <View style={{ height: 2, backgroundColor: C.border, borderRadius: 1 }} />
       <View style={wo.row}>
         {available.map(w => (
           <TouchableOpacity key={w.id} onPress={() => add(w)} style={[wo.chip, { borderColor: C.border, backgroundColor: C.backgroundGray }]}>
-            <Text style={[wo.chipTxt, { color: C.textDark }]}>{w.text}</Text>
+            <Text style={[wo.txt, { color: C.textDark }]}>{w.text}</Text>
           </TouchableOpacity>
         ))}
       </View>
@@ -70,10 +117,8 @@ function WordOrderExercise({ words, onAnswerChange, feedback, C }) {
 const wo = StyleSheet.create({
   zone: { minHeight: 64, borderWidth: 2, borderRadius: 12, padding: 12, justifyContent: 'center' },
   row: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  divider: { height: 2, borderRadius: 1 },
   chip: { paddingHorizontal: 14, paddingVertical: 10, borderRadius: 10, borderWidth: 2, borderBottomWidth: 4 },
-  chipPlaced: {},
-  chipTxt: { fontSize: 15, fontWeight: '700', fontFamily: Platform.OS === 'ios' ? 'Courier New' : 'monospace' },
+  txt: { fontSize: 15, fontWeight: '700', fontFamily: Platform.OS === 'ios' ? 'Courier New' : 'monospace' },
 });
 
 // ── Main screen ────────────────────────────────────────────────────────────
@@ -82,7 +127,6 @@ export default function LessonScreen({ route, navigation }) {
   const { completeLesson, loseHeart, user, settings } = useApp();
   const { colors: C } = useTheme();
 
-  // Slice exercises based on time goal
   const maxEx = EXERCISES_FOR_GOAL[settings.timeGoal] ?? 8;
   const exercises = useMemo(() => lesson.exercises.slice(0, maxEx), [lesson, maxEx]);
 
@@ -93,24 +137,31 @@ export default function LessonScreen({ route, navigation }) {
   const [feedback, setFeedback] = useState(NONE);
   const [correct, setCorrect] = useState(0);
   const [finished, setFinished] = useState(false);
+  const [burstKey, setBurstKey] = useState(null); // triggers burst
   const [woKey, setWoKey] = useState(0);
 
   const shakeAnim = useRef(new Animated.Value(0)).current;
   const fadeAnim = useRef(new Animated.Value(1)).current;
-  const bounceAnim = useRef(new Animated.Value(1)).current;
+  const scaleAnim = useRef(new Animated.Value(1)).current;
+
+  // Finish screen animations
+  const trophyScale = useRef(new Animated.Value(0)).current;
+  const statsSlide = useRef(new Animated.Value(40)).current;
+  const statsOpacity = useRef(new Animated.Value(0)).current;
 
   const current = exercises[idx];
 
   const shake = () => Animated.sequence([
-    Animated.timing(shakeAnim, { toValue: 10, duration: 60, useNativeDriver: true }),
-    Animated.timing(shakeAnim, { toValue: -10, duration: 60, useNativeDriver: true }),
+    Animated.timing(shakeAnim, { toValue: 12, duration: 60, useNativeDriver: true }),
+    Animated.timing(shakeAnim, { toValue: -12, duration: 60, useNativeDriver: true }),
     Animated.timing(shakeAnim, { toValue: 8, duration: 60, useNativeDriver: true }),
+    Animated.timing(shakeAnim, { toValue: -8, duration: 60, useNativeDriver: true }),
     Animated.timing(shakeAnim, { toValue: 0, duration: 60, useNativeDriver: true }),
   ]).start();
 
-  const bounce = () => Animated.sequence([
-    Animated.spring(bounceAnim, { toValue: 1.06, useNativeDriver: true, speed: 50 }),
-    Animated.spring(bounceAnim, { toValue: 1, useNativeDriver: true, speed: 50 }),
+  const bounceCorrect = () => Animated.sequence([
+    Animated.spring(scaleAnim, { toValue: 1.04, useNativeDriver: true, speed: 60 }),
+    Animated.spring(scaleAnim, { toValue: 1, useNativeDriver: true, speed: 60 }),
   ]).start();
 
   const canCheck = () => {
@@ -120,6 +171,9 @@ export default function LessonScreen({ route, navigation }) {
     return false;
   };
 
+  // Normalize: remove all whitespace for comparison (handles "score=100" vs "score = 100")
+  const norm = (s) => s.replace(/\s+/g, '');
+
   const handleCheck = () => {
     if (feedback !== NONE || !canCheck()) return;
     let ok = false;
@@ -128,16 +182,36 @@ export default function LessonScreen({ route, navigation }) {
     } else if (current.type === 'fill_blank') {
       ok = fill.trim().toLowerCase() === current.answer.toLowerCase();
     } else if (current.type === 'code_order') {
-      ok = order.trim() === current.answer;
+      // Normalize both sides: remove all spaces before comparing
+      ok = norm(order) === norm(current.answer);
     }
-    if (ok) { setFeedback(CORRECT); setCorrect(c => c + 1); bounce(); }
-    else { setFeedback(WRONG); loseHeart(); shake(); }
+
+    if (ok) {
+      setFeedback(CORRECT);
+      setCorrect(c => c + 1);
+      setBurstKey(Date.now());
+      bounceCorrect();
+    } else {
+      setFeedback(WRONG);
+      loseHeart();
+      shake();
+    }
   };
 
   const handleContinue = () => {
     if (idx + 1 >= exercises.length) {
       setFinished(true);
       completeLesson(lesson.id, lesson.xp);
+      // Trigger finish animations
+      setTimeout(() => {
+        Animated.spring(trophyScale, { toValue: 1, useNativeDriver: true, bounciness: 18, speed: 10 }).start();
+        setTimeout(() => {
+          Animated.parallel([
+            Animated.timing(statsSlide, { toValue: 0, duration: 400, useNativeDriver: true }),
+            Animated.timing(statsOpacity, { toValue: 1, duration: 400, useNativeDriver: true }),
+          ]).start();
+        }, 400);
+      }, 100);
     } else {
       Animated.timing(fadeAnim, { toValue: 0, duration: 150, useNativeDriver: true }).start(() => {
         setIdx(i => i + 1);
@@ -148,35 +222,48 @@ export default function LessonScreen({ route, navigation }) {
     }
   };
 
-  // ── Finished ──
+  // ── Finished screen ──
   if (finished) {
     const accuracy = Math.round((correct / exercises.length) * 100);
+    const stats = [
+      { icon: '⚡', val: `+${lesson.xp}`, label: 'XP gagnés', color: C.yellow, bg: C.yellowLight },
+      { icon: '🎯', val: `${accuracy}%`, label: 'Précision', color: C.green, bg: C.greenLight },
+      { icon: '✅', val: `${correct}/${exercises.length}`, label: 'Corrects', color: C.blue, bg: C.blueLight },
+    ];
     return (
       <SafeAreaView style={{ flex: 1, backgroundColor: C.background }}>
-        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', padding: 24, gap: 12 }}>
-          <Text style={{ fontSize: 80 }}>🏆</Text>
-          <Text style={{ fontSize: 30, fontWeight: '900', color: C.textDark }}>Leçon terminée !</Text>
-          <Text style={{ fontSize: 16, color: C.textMedium, textAlign: 'center' }}>
-            Tu as maîtrisé {lesson.title}
-          </Text>
-          <View style={{ flexDirection: 'row', gap: 12, marginVertical: 12 }}>
-            {[
-              { icon: '⚡', val: `+${lesson.xp}`, color: C.yellow, bg: C.yellowLight },
-              { icon: '🎯', val: `${accuracy}%`, color: C.green, bg: C.greenLight },
-              { icon: '✅', val: `${correct}/${exercises.length}`, color: C.blue, bg: C.blueLight },
-            ].map(s => (
-              <View key={s.icon} style={{ alignItems: 'center', padding: 16, borderRadius: 16, backgroundColor: s.bg, minWidth: 90, gap: 4 }}>
-                <Text style={{ fontSize: 24 }}>{s.icon}</Text>
-                <Text style={{ fontSize: 22, fontWeight: '900', color: s.color }}>{s.val}</Text>
-              </View>
-            ))}
-          </View>
-          <TouchableOpacity style={{ width: '100%' }} onPress={() => navigation.goBack()} activeOpacity={0.85}>
-            <View style={{ position: 'absolute', bottom: -4, left: 0, right: 0, height: 56, backgroundColor: '#3A8E00', borderRadius: 16 }} />
-            <View style={{ backgroundColor: C.green, borderRadius: 16, paddingVertical: 16, alignItems: 'center' }}>
-              <Text style={{ fontSize: 16, fontWeight: '900', color: '#fff', letterSpacing: 1 }}>CONTINUER</Text>
+        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', padding: 24 }}>
+          {/* Trophy */}
+          <Animated.Text style={{ fontSize: 90, transform: [{ scale: trophyScale }] }}>🏆</Animated.Text>
+
+          <Animated.View style={{ alignItems: 'center', opacity: statsOpacity, transform: [{ translateY: statsSlide }] }}>
+            <Text style={{ fontSize: 30, fontWeight: '900', color: C.textDark, marginTop: 12 }}>
+              Leçon terminée !
+            </Text>
+            <Text style={{ fontSize: 16, color: C.textMedium, textAlign: 'center', marginVertical: 6 }}>
+              Tu as maîtrisé «{lesson.title}»
+            </Text>
+
+            <View style={{ flexDirection: 'row', gap: 12, marginVertical: 20 }}>
+              {stats.map(s => (
+                <View key={s.icon} style={{
+                  alignItems: 'center', padding: 16, borderRadius: 16,
+                  backgroundColor: s.bg, minWidth: 90, gap: 4,
+                }}>
+                  <Text style={{ fontSize: 26 }}>{s.icon}</Text>
+                  <Text style={{ fontSize: 22, fontWeight: '900', color: s.color }}>{s.val}</Text>
+                  <Text style={{ fontSize: 11, color: C.textMedium, fontWeight: '600' }}>{s.label}</Text>
+                </View>
+              ))}
             </View>
-          </TouchableOpacity>
+
+            <TouchableOpacity style={{ width: '100%' }} onPress={() => navigation.goBack()} activeOpacity={0.85}>
+              <View style={{ position: 'absolute', bottom: -4, left: 0, right: 0, height: 56, backgroundColor: '#3A8E00', borderRadius: 16 }} />
+              <View style={{ backgroundColor: C.green, borderRadius: 16, paddingVertical: 16, alignItems: 'center' }}>
+                <Text style={{ fontSize: 16, fontWeight: '900', color: '#fff', letterSpacing: 1 }}>CONTINUER</Text>
+              </View>
+            </TouchableOpacity>
+          </Animated.View>
         </View>
       </SafeAreaView>
     );
@@ -187,6 +274,7 @@ export default function LessonScreen({ route, navigation }) {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: C.background }} edges={['top']}>
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+
         {/* Top bar */}
         <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 12, gap: 12 }}>
           <TouchableOpacity onPress={() => navigation.goBack()} style={{ padding: 4 }}>
@@ -201,21 +289,15 @@ export default function LessonScreen({ route, navigation }) {
           </View>
         </View>
 
-        {/* Time goal chip */}
-        <View style={{ flexDirection: 'row', justifyContent: 'center', marginBottom: 4 }}>
-          <View style={{ backgroundColor: C.backgroundGray, paddingHorizontal: 12, paddingVertical: 4, borderRadius: 20 }}>
-            <Text style={{ fontSize: 12, color: C.textMedium, fontWeight: '600' }}>
-              ⏱️ Objectif {settings.timeGoal} min · {exercises.length} exercices
-            </Text>
-          </View>
-        </View>
-
-        {/* Exercise */}
-        <Animated.View style={{ flex: 1, opacity: fadeAnim, transform: [{ translateX: shakeAnim }, { scale: bounceAnim }] }}>
+        {/* Exercise with burst effect */}
+        <Animated.View style={{ flex: 1, opacity: fadeAnim, transform: [{ translateX: shakeAnim }, { scale: scaleAnim }] }}>
+          <BurstEffect trigger={burstKey} />
           <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ padding: 24, paddingTop: 8 }}>
+
             <Text style={{ fontSize: 12, fontWeight: '700', color: C.textLight, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 14 }}>
               Question {idx + 1} / {exercises.length}
             </Text>
+
             <Text style={{ fontSize: 20, fontWeight: '700', color: C.textDark, lineHeight: 28, marginBottom: 20 }}>
               {current.question}
             </Text>
@@ -318,10 +400,11 @@ export default function LessonScreen({ route, navigation }) {
                 )}
               </View>
             )}
+
           </ScrollView>
         </Animated.View>
 
-        {/* Bottom feedback + button */}
+        {/* Bottom */}
         <View style={{
           padding: 16, gap: 12,
           backgroundColor: feedback === CORRECT ? C.greenLight : feedback === WRONG ? C.redLight : C.background,
@@ -338,11 +421,7 @@ export default function LessonScreen({ route, navigation }) {
             </View>
           )}
 
-          <TouchableOpacity
-            onPress={feedback !== NONE ? handleContinue : handleCheck}
-            activeOpacity={0.85}
-            style={{ height: 56 }}
-          >
+          <TouchableOpacity onPress={feedback !== NONE ? handleContinue : handleCheck} activeOpacity={0.85} style={{ height: 56 }}>
             <View style={{
               position: 'absolute', bottom: -4, left: 0, right: 0, height: 56, borderRadius: 16,
               backgroundColor: feedback === WRONG ? C.redDark : disabled ? C.borderDark : '#3A8E00',
@@ -360,6 +439,7 @@ export default function LessonScreen({ route, navigation }) {
             </View>
           </TouchableOpacity>
         </View>
+
       </KeyboardAvoidingView>
     </SafeAreaView>
   );

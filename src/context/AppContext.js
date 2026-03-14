@@ -62,11 +62,23 @@ export function AppProvider({ children }) {
     });
 
     setCourse(prev => {
+      // Find which unit contains the completed lesson and if it's the last lesson
+      let nextUnitFirstLessonId = null;
+      for (let u = 0; u < prev.units.length; u++) {
+        const unit = prev.units[u];
+        const lastLesson = unit.lessons[unit.lessons.length - 1];
+        if (lastLesson?.id === lessonId && u + 1 < prev.units.length) {
+          nextUnitFirstLessonId = prev.units[u + 1].lessons[0]?.id;
+          break;
+        }
+      }
       const units = prev.units.map(unit => {
         const lessons = unit.lessons.map((lesson, index) => {
           if (lesson.id === lessonId) return { ...lesson, status: 'completed' };
-          const prev = unit.lessons[index - 1];
-          if (prev?.id === lessonId && lesson.status === 'locked')
+          const prevLesson = unit.lessons[index - 1];
+          if (prevLesson?.id === lessonId && lesson.status === 'locked')
+            return { ...lesson, status: 'active' };
+          if (lesson.id === nextUnitFirstLessonId && lesson.status === 'locked')
             return { ...lesson, status: 'active' };
           return lesson;
         });
