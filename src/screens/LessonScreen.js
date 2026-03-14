@@ -165,6 +165,7 @@ export default function LessonScreen({ route, navigation }) {
   ]).start();
 
   const canCheck = () => {
+    if (current.type === 'concept') return true;
     if (current.type === 'multiple_choice') return !!selected;
     if (current.type === 'fill_blank') return fill.trim().length > 0;
     if (current.type === 'code_order') return order.length > 0;
@@ -176,6 +177,8 @@ export default function LessonScreen({ route, navigation }) {
 
   const handleCheck = () => {
     if (feedback !== NONE || !canCheck()) return;
+    // Concept cards just advance — no score, no feedback
+    if (current.type === 'concept') { handleContinue(); return; }
     let ok = false;
     if (current.type === 'multiple_choice') {
       ok = current.options.find(o => o.id === selected)?.correct === true;
@@ -224,7 +227,8 @@ export default function LessonScreen({ route, navigation }) {
 
   // ── Finished screen ──
   if (finished) {
-    const accuracy = Math.round((correct / exercises.length) * 100);
+    const scoredCount = exercises.filter(e => e.type !== 'concept').length;
+    const accuracy = scoredCount > 0 ? Math.round((correct / scoredCount) * 100) : 100;
     const stats = [
       { icon: '⚡', val: `+${lesson.xp}`, label: 'XP gagnés', color: C.yellow, bg: C.yellowLight },
       { icon: '🎯', val: `${accuracy}%`, label: 'Précision', color: C.green, bg: C.greenLight },
@@ -295,12 +299,26 @@ export default function LessonScreen({ route, navigation }) {
           <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ padding: 24, paddingTop: 8 }}>
 
             <Text style={{ fontSize: 12, fontWeight: '700', color: C.textLight, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 14 }}>
-              Question {idx + 1} / {exercises.length}
+              {current.type === 'concept' ? '📖 À retenir' : `Question ${idx + 1} / ${exercises.length}`}
             </Text>
 
-            <Text style={{ fontSize: 20, fontWeight: '700', color: C.textDark, lineHeight: 28, marginBottom: 20 }}>
-              {current.question}
-            </Text>
+            {/* Concept card */}
+            {current.type === 'concept' && (
+              <View style={{ gap: 16 }}>
+                <Text style={{ fontSize: 24, fontWeight: '900', color: C.textDark, lineHeight: 30 }}>
+                  {current.title}
+                </Text>
+                <Text style={{ fontSize: 16, color: C.textMedium, lineHeight: 24 }}>
+                  {current.content}
+                </Text>
+              </View>
+            )}
+
+            {current.type !== 'concept' && (
+              <Text style={{ fontSize: 20, fontWeight: '700', color: C.textDark, lineHeight: 28, marginBottom: 20 }}>
+                {current.question}
+              </Text>
+            )}
 
             {/* Code block */}
             {current.code && (
@@ -424,17 +442,17 @@ export default function LessonScreen({ route, navigation }) {
           <TouchableOpacity onPress={feedback !== NONE ? handleContinue : handleCheck} activeOpacity={0.85} style={{ height: 56 }}>
             <View style={{
               position: 'absolute', bottom: -4, left: 0, right: 0, height: 56, borderRadius: 16,
-              backgroundColor: feedback === WRONG ? C.redDark : disabled ? C.borderDark : '#3A8E00',
+              backgroundColor: feedback === WRONG ? C.redDark : (disabled && current.type !== 'concept') ? C.borderDark : '#3A8E00',
             }} />
             <View style={{
               borderRadius: 16, height: 52, alignItems: 'center', justifyContent: 'center',
-              backgroundColor: feedback === WRONG ? C.red : disabled ? C.border : C.green,
+              backgroundColor: feedback === WRONG ? C.red : (disabled && current.type !== 'concept') ? C.border : C.green,
             }}>
               <Text style={{
                 fontSize: 16, fontWeight: '900', letterSpacing: 1,
-                color: disabled ? C.textLight : '#fff',
+                color: (disabled && current.type !== 'concept') ? C.textLight : '#fff',
               }}>
-                {feedback !== NONE ? 'CONTINUER' : 'VÉRIFIER'}
+                {feedback !== NONE ? 'CONTINUER' : current.type === 'concept' ? 'J\'AI COMPRIS !' : 'VÉRIFIER'}
               </Text>
             </View>
           </TouchableOpacity>

@@ -216,6 +216,12 @@ export const COURSE = {
           description: 'Ton premier programme Python', xp: 10, status: 'locked',
           exercises: [
             {
+              id: 'c1', type: 'concept',
+              title: 'print() — afficher du texte',
+              content: 'print() est une fonction Python.\nElle affiche ce que tu lui donnes entre parenthèses.\n\nC\'est la toute première instruction que tout le monde apprend !',
+              code: 'print("Bonjour !")\n# Affiche : Bonjour !\n\nprint(42)\n# Affiche : 42\n\nprint("J\'ai", 25, "ans")\n# Affiche : J\'ai 25 ans',
+            },
+            {
               id: 'e1', type: 'multiple_choice',
               question: 'Comment afficher "Bonjour" en Python ?',
               options: [
@@ -317,6 +323,12 @@ export const COURSE = {
           id: 'lesson_1_2', title: 'Variables', icon: '📦',
           description: 'Stocker des données', xp: 10, status: 'locked',
           exercises: [
+            {
+              id: 'c1', type: 'concept',
+              title: 'Les variables — des boîtes nommées',
+              content: 'Une variable, c\'est comme une boîte avec une étiquette.\nTu mets une valeur dedans, et tu peux la retrouver plus tard grâce à son nom.\n\nSyntaxe : nom = valeur',
+              code: 'age = 25          # une boîte "age" qui contient 25\nprenom = "Alice"  # une boîte "prenom"\n\nprint(age)        # affiche : 25\nprint(prenom)     # affiche : Alice',
+            },
             {
               id: 'e1', type: 'multiple_choice',
               question: 'C\'est quoi une variable ?\n\nImagine une boîte avec une étiquette. Tu écris un nom sur l\'étiquette et tu mets une valeur dedans. Tu peux retrouver cette valeur à tout moment grâce au nom.',
@@ -447,6 +459,12 @@ export const COURSE = {
           id: 'lesson_1_3', title: 'Types de données', icon: '🏷️',
           description: 'Texte, nombres, vrai/faux', xp: 15, status: 'locked',
           exercises: [
+            {
+              id: 'c1', type: 'concept',
+              title: 'Les 4 types de base en Python',
+              content: 'Chaque valeur a un type. Le type dit à Python comment traiter cette valeur.\n\nstr  → du texte (entre guillemets)\nint  → un nombre entier\nfloat → un nombre décimal\nbool → vrai ou faux',
+              code: '"Bonjour"  → str    # texte\n42         → int    # entier\n3.14       → float  # décimal\nTrue       → bool   # vrai/faux',
+            },
             // ── Phase 1 : C'est quoi un "type" ? ──────────────────────
             {
               id: 'e1', type: 'multiple_choice',
@@ -570,6 +588,12 @@ export const COURSE = {
           description: 'Calculs et maths', xp: 15, status: 'locked',
           exercises: [
             {
+              id: 'c1', type: 'concept',
+              title: 'Les opérateurs mathématiques',
+              content: 'Python peut faire des calculs comme une calculatrice.\nVoici tous les opérateurs que tu vas apprendre :',
+              code: '5 + 3    → 8     # addition\n10 - 4   → 6     # soustraction\n3 * 7    → 21    # multiplication\n10 / 3   → 3.33  # division\n10 // 3  → 3     # division entière\n10 % 3   → 1     # reste (modulo)\n2 ** 8   → 256   # puissance',
+            },
+            {
               id: 'e1', type: 'multiple_choice',
               question: 'Quel opérateur donne le reste d\'une division ?',
               options: [
@@ -682,6 +706,12 @@ export const COURSE = {
           id: 'lesson_1_5', title: 'Strings', icon: '💬',
           description: 'Manipuler du texte', xp: 20, status: 'locked',
           exercises: [
+            {
+              id: 'c1', type: 'concept',
+              title: 'Manipuler du texte (str)',
+              content: 'Un str est une chaîne de caractères.\nPython donne plein d\'outils pour le modifier, le couper, le transformer.',
+              code: 'mot = "python"\n\nlen(mot)         → 6        # longueur\nmot.upper()      → "PYTHON" # majuscules\nmot[0]           → "p"      # 1er caractère\nmot.replace("p","b") → "bython"\nf"Salut {mot}"   → "Salut python"',
+            },
             {
               id: 'e1', type: 'multiple_choice',
               question: 'Comment concaténer (joindre) deux strings ?',
@@ -801,6 +831,12 @@ export const COURSE = {
           description: 'Prendre des décisions', xp: 20, status: 'locked',
           exercises: [
             {
+              id: 'c1', type: 'concept',
+              title: 'if / else — prendre des décisions',
+              content: 'if teste une condition.\nSi elle est vraie → le bloc s\'exécute.\nSi elle est fausse → else prend le relais.\n\n⚠️ L\'indentation (décalage) est obligatoire en Python !',
+              code: 'age = 20\n\nif age >= 18:\n    print("Majeur")   # ← indenté\nelse:\n    print("Mineur")   # ← indenté\n\n# Affiche : Majeur',
+            },
+            {
               id: 'e1', type: 'multiple_choice',
               question: 'Quelle est la syntaxe correcte pour un if ?',
               options: [
@@ -912,6 +948,12 @@ export const COURSE = {
           description: 'and, or, not', xp: 20, status: 'locked',
           exercises: [
             {
+              id: 'c1', type: 'concept',
+              title: 'and, or, not — combiner des conditions',
+              content: 'Ces 3 mots permettent de combiner ou d\'inverser des conditions.\n\nand → les DEUX doivent être vraies\nor  → AU MOINS une doit être vraie\nnot → inverse la condition',
+              code: '# and\nif age >= 18 and age <= 65:\n    print("En âge de travailler")\n\n# or\nif jour == "Sam" or jour == "Dim":\n    print("Week-end !")\n\n# not\nif not game_over:\n    print("Continue à jouer")',
+            },
+            {
               id: 'e1', type: 'multiple_choice',
               question: 'True and False vaut ?',
               code: 'True and False',
@@ -1019,6 +1061,12 @@ export const COURSE = {
           id: 'lesson_2_3', title: 'Comparaisons', icon: '⚖️',
           description: '==, !=, >, <, >=, <=', xp: 20, status: 'locked',
           exercises: [
+            {
+              id: 'c1', type: 'concept',
+              title: 'Les opérateurs de comparaison',
+              content: 'Comparer deux valeurs donne toujours True ou False.\n\n⚠️ Ne confonds pas = (assigner) et == (comparer) !',
+              code: '==   égal à            5 == 5   → True\n!=   différent de       5 != 3   → True\n>    supérieur à         7 > 3    → True\n<    inférieur à         2 < 8    → True\n>=   supérieur ou égal   5 >= 5   → True\n<=   inférieur ou égal   3 <= 5   → True',
+            },
             {
               id: 'e1', type: 'multiple_choice',
               question: 'Comment tester si deux valeurs sont ÉGALES ?',
@@ -1136,6 +1184,12 @@ export const COURSE = {
           description: 'Répéter des actions', xp: 25, status: 'locked',
           exercises: [
             {
+              id: 'c1', type: 'concept',
+              title: 'La boucle for — répéter des actions',
+              content: 'La boucle for répète un bloc de code pour chaque élément d\'une séquence.\n\nrange(n) génère les nombres de 0 à n-1.',
+              code: '# Compter de 0 à 2\nfor i in range(3):\n    print(i)\n# Affiche : 0, puis 1, puis 2\n\n# Parcourir une liste\nfruits = ["pomme", "poire", "cerise"]\nfor fruit in fruits:\n    print(fruit)',
+            },
+            {
               id: 'e1', type: 'multiple_choice',
               question: 'Que va afficher ce code ?\n\nfor i in range(3):\n    print(i)',
               code: 'for i in range(3):\n    print(i)',
@@ -1244,6 +1298,12 @@ export const COURSE = {
           id: 'lesson_3_2', title: 'Boucle while', icon: '⏳',
           description: 'Tant que...', xp: 25, status: 'locked',
           exercises: [
+            {
+              id: 'c1', type: 'concept',
+              title: 'La boucle while — tant que...',
+              content: 'La boucle while répète un bloc TANT QU\'une condition est vraie.\nQuand la condition devient fausse → la boucle s\'arrête.\n\n⚠️ Pense à modifier la variable dans la boucle, sinon elle tourne infiniment !',
+              code: 'vies = 3\n\nwhile vies > 0:\n    print("Continue !")\n    vies -= 1   # ← important !\n\nprint("Game over")\n# Affiche "Continue !" 3 fois, puis "Game over"',
+            },
             {
               id: 'e1', type: 'multiple_choice',
               question: 'Que va afficher ce code ?\n\nx = 0\nwhile x < 3:\n    print(x)\n    x += 1',
@@ -1361,6 +1421,12 @@ export const COURSE = {
           description: 'def et return', xp: 30, status: 'locked',
           exercises: [
             {
+              id: 'c1', type: 'concept',
+              title: 'Les fonctions — réutiliser du code',
+              content: 'Une fonction est un bloc de code qu\'on nomme.\nOn la définit une fois avec def, et on peut l\'appeler autant de fois qu\'on veut.\n\nreturn permet à la fonction de renvoyer un résultat.',
+              code: '# Définir\ndef saluer(prenom):\n    print(f"Bonjour {prenom} !")\n\n# Appeler\nsaluer("Alice")  # → Bonjour Alice !\nsaluer("Bob")    # → Bonjour Bob !\n\n# Avec return\ndef double(x):\n    return x * 2\n\nresultat = double(5)  # resultat = 10',
+            },
+            {
               id: 'e1', type: 'multiple_choice',
               question: 'Comment définir une fonction "saluer" ?',
               options: [
@@ -1477,6 +1543,12 @@ export const COURSE = {
           id: 'lesson_5_1', title: 'Créer des listes', icon: '📝',
           description: 'Les tableaux Python', xp: 30, status: 'locked',
           exercises: [
+            {
+              id: 'c1', type: 'concept',
+              title: 'Les listes — stocker plusieurs valeurs',
+              content: 'Une liste permet de stocker plusieurs valeurs dans une seule variable.\nOn utilise des crochets [ ] et on sépare les éléments par des virgules.\n\nLes indices commencent à 0 (pas à 1 !).',
+              code: 'scores = [42, 98, 17, 65]\n\nscores[0]           → 42   # 1er élément\nscores[-1]          → 65   # dernier élément\nlen(scores)         → 4    # longueur\nscores.append(100)         # ajoute à la fin\nscores.pop()               # enlève le dernier',
+            },
             {
               id: 'e1', type: 'multiple_choice',
               question: 'Comment créer une liste avec 1, 2, 3 ?',
