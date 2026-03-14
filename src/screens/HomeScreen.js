@@ -1,169 +1,121 @@
-import React, { useRef } from 'react';
-import {
-  View,
-  ScrollView,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  Modal,
-  Animated,
-} from 'react-native';
+import React, { useRef, useState } from 'react';
+import { View, ScrollView, Text, TouchableOpacity, Modal, Animated, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useApp } from '../context/AppContext';
+import { useApp, EXERCISES_FOR_GOAL } from '../context/AppContext';
+import { useTheme } from '../context/ThemeContext';
 import DuoHeader from '../components/DuoHeader';
 import UnitHeader from '../components/UnitHeader';
 import LessonNode from '../components/LessonNode';
-import { COLORS } from '../constants/colors';
 
 export default function HomeScreen({ navigation }) {
-  const { course, user } = useApp();
-  const [selectedLesson, setSelectedLesson] = React.useState(null);
+  const { course, user, settings } = useApp();
+  const { colors: C } = useTheme();
+  const [selectedLesson, setSelectedLesson] = useState(null);
   const slideAnim = useRef(new Animated.Value(300)).current;
 
-  const handleLessonPress = (lesson) => {
+  const openLesson = (lesson) => {
     if (lesson.status === 'locked') return;
     setSelectedLesson(lesson);
-    Animated.spring(slideAnim, {
-      toValue: 0,
-      useNativeDriver: true,
-      tension: 65,
-      friction: 10,
-    }).start();
+    Animated.spring(slideAnim, { toValue: 0, useNativeDriver: true, tension: 65, friction: 10 }).start();
   };
 
-  const handleModalClose = () => {
-    Animated.timing(slideAnim, {
-      toValue: 300,
-      duration: 200,
-      useNativeDriver: true,
-    }).start(() => setSelectedLesson(null));
+  const closeModal = (cb) => {
+    Animated.timing(slideAnim, { toValue: 300, duration: 200, useNativeDriver: true }).start(() => {
+      setSelectedLesson(null);
+      cb?.();
+    });
   };
 
-  const handleStartLesson = () => {
-    if (!selectedLesson) return;
-    handleModalClose();
-    setTimeout(() => {
-      navigation.navigate('Lesson', { lesson: selectedLesson });
-    }, 220);
-  };
+  const startLesson = () => closeModal(() => {
+    setTimeout(() => navigation.navigate('Lesson', { lesson: selectedLesson }), 220);
+  });
 
-  // XP progress to next level
   const xpInLevel = user.xp % 100;
-  const xpNeeded = 100;
+  const maxEx = EXERCISES_FOR_GOAL[settings.timeGoal] ?? 8;
 
   return (
-    <SafeAreaView style={styles.safe} edges={['top']}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: C.background }} edges={['top']}>
       <DuoHeader />
 
-      <ScrollView
-        style={styles.scroll}
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.scrollContent}
-      >
-        {/* XP Bar */}
-        <View style={styles.xpSection}>
-          <View style={styles.xpRow}>
-            <Text style={styles.xpLabel}>⚡ {user.xp} XP total</Text>
-            <Text style={styles.levelBadge}>Niv. {user.level}</Text>
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingTop: 8 }}>
+        {/* XP bar */}
+        <View style={{ marginHorizontal: 16, marginBottom: 8 }}>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 6 }}>
+            <Text style={{ fontSize: 13, fontWeight: '600', color: C.textMedium }}>⚡ {user.xp} XP</Text>
+            <Text style={{ fontSize: 13, fontWeight: '800', color: C.blue }}>Niv. {user.level}</Text>
           </View>
-          <View style={styles.xpTrack}>
-            <View
-              style={[
-                styles.xpFill,
-                { width: `${(xpInLevel / xpNeeded) * 100}%` },
-              ]}
-            />
+          <View style={{ height: 10, backgroundColor: C.border, borderRadius: 5, overflow: 'hidden' }}>
+            <View style={{ height: '100%', width: `${xpInLevel}%`, backgroundColor: C.blue, borderRadius: 5 }} />
           </View>
         </View>
 
-        {/* Course units + lessons */}
-        {course.units.map((unit, unitIndex) => (
-          <View key={unit.id} style={styles.unitSection}>
-            <UnitHeader unit={unit} />
+        {/* Daily goal chip */}
+        <View style={{ alignItems: 'center', marginBottom: 4 }}>
+          <View style={{ backgroundColor: C.backgroundGray, borderColor: C.border, borderWidth: 1, paddingHorizontal: 14, paddingVertical: 6, borderRadius: 20 }}>
+            <Text style={{ fontSize: 13, color: C.textMedium, fontWeight: '600' }}>
+              🎯 Objectif : {settings.timeGoal} min/jour · {maxEx} exercices/leçon
+            </Text>
+          </View>
+        </View>
 
-            {/* Lesson nodes */}
-            <View style={styles.nodesContainer}>
-              {unit.lessons.map((lesson, lessonIndex) => (
+        {/* Units */}
+        {course.units.map(unit => (
+          <View key={unit.id}>
+            <UnitHeader unit={unit} />
+            <View style={{ paddingVertical: 8, paddingBottom: 20 }}>
+              {unit.lessons.map((lesson, i) => (
                 <LessonNode
-                  key={lesson.id}
-                  lesson={lesson}
-                  unitColor={unit.color}
-                  unitDarkColor={unit.darkColor}
-                  index={lessonIndex}
-                  onPress={handleLessonPress}
+                  key={lesson.id} lesson={lesson}
+                  unitColor={unit.color} unitDarkColor={unit.darkColor}
+                  index={i} onPress={openLesson}
                 />
               ))}
             </View>
           </View>
         ))}
-
-        {/* Bottom padding */}
         <View style={{ height: 80 }} />
       </ScrollView>
 
-      {/* Lesson Preview Modal */}
-      <Modal
-        visible={!!selectedLesson}
-        transparent
-        animationType="none"
-        onRequestClose={handleModalClose}
-      >
-        <TouchableOpacity
-          style={styles.overlay}
-          activeOpacity={1}
-          onPress={handleModalClose}
+      {/* Lesson preview modal */}
+      <Modal visible={!!selectedLesson} transparent animationType="none" onRequestClose={() => closeModal()}>
+        <TouchableOpacity style={StyleSheet.absoluteFill} onPress={() => closeModal()}
+          activeOpacity={1} style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)' }}
         />
         {selectedLesson && (
-          <Animated.View
-            style={[
-              styles.modal,
-              { transform: [{ translateY: slideAnim }] },
-            ]}
-          >
-            <View style={styles.modalHandle} />
-
-            <View style={styles.modalContent}>
-              {/* Lesson icon */}
-              <View style={styles.modalIconWrap}>
-                <Text style={styles.modalIcon}>{selectedLesson.icon}</Text>
+          <Animated.View style={[s.modal, { backgroundColor: C.background, transform: [{ translateY: slideAnim }] }]}>
+            <View style={[s.handle, { backgroundColor: C.border }]} />
+            <View style={{ padding: 24, alignItems: 'center' }}>
+              <View style={[s.iconWrap, { backgroundColor: C.backgroundGray }]}>
+                <Text style={{ fontSize: 40 }}>{selectedLesson.icon}</Text>
               </View>
+              <Text style={{ fontSize: 24, fontWeight: '800', color: C.textDark, marginBottom: 6 }}>
+                {selectedLesson.title}
+              </Text>
+              <Text style={{ fontSize: 16, color: C.textMedium, textAlign: 'center', marginBottom: 20 }}>
+                {selectedLesson.description}
+              </Text>
 
-              <Text style={styles.modalTitle}>{selectedLesson.title}</Text>
-              <Text style={styles.modalDesc}>{selectedLesson.description}</Text>
-
-              {/* Stats row */}
-              <View style={styles.statsRow}>
-                <View style={styles.statChip}>
-                  <Text style={styles.statChipIcon}>⚡</Text>
-                  <Text style={styles.statChipText}>{selectedLesson.xp} XP</Text>
+              <View style={{ flexDirection: 'row', gap: 10, marginBottom: 24 }}>
+                <View style={[s.chip, { backgroundColor: C.yellowLight }]}>
+                  <Text>⚡</Text>
+                  <Text style={{ fontSize: 13, fontWeight: '700', color: C.yellow }}>{selectedLesson.xp} XP</Text>
                 </View>
-                <View style={styles.statChip}>
-                  <Text style={styles.statChipIcon}>📝</Text>
-                  <Text style={styles.statChipText}>{selectedLesson.exercises?.length || 0} exercices</Text>
+                <View style={[s.chip, { backgroundColor: C.backgroundGray }]}>
+                  <Text>📝</Text>
+                  <Text style={{ fontSize: 13, fontWeight: '700', color: C.textDark }}>
+                    {Math.min(selectedLesson.exercises?.length ?? 0, maxEx)} exercices
+                  </Text>
                 </View>
-                <View style={[styles.statChip, {
-                  backgroundColor: selectedLesson.status === 'completed'
-                    ? COLORS.greenLight
-                    : COLORS.yellowLight
-                }]}>
-                  <Text style={styles.statChipIcon}>
-                    {selectedLesson.status === 'completed' ? '✅' : '🎯'}
-                  </Text>
-                  <Text style={styles.statChipText}>
-                    {selectedLesson.status === 'completed' ? 'Terminé' : 'Nouveau'}
-                  </Text>
+                <View style={[s.chip, { backgroundColor: C.backgroundGray }]}>
+                  <Text>⏱️</Text>
+                  <Text style={{ fontSize: 13, fontWeight: '700', color: C.textDark }}>{settings.timeGoal} min</Text>
                 </View>
               </View>
 
-              {/* Start button */}
-              <TouchableOpacity
-                style={styles.startBtnWrap}
-                onPress={handleStartLesson}
-                activeOpacity={0.85}
-              >
-                <View style={styles.startBtnShadow} />
-                <View style={styles.startBtn}>
-                  <Text style={styles.startBtnText}>
+              <TouchableOpacity style={{ width: '100%' }} onPress={startLesson} activeOpacity={0.85}>
+                <View style={{ position: 'absolute', bottom: -4, left: 0, right: 0, height: 52, backgroundColor: '#3A8E00', borderRadius: 16 }} />
+                <View style={{ backgroundColor: C.green, borderRadius: 16, paddingVertical: 16, alignItems: 'center' }}>
+                  <Text style={{ fontSize: 16, fontWeight: '900', color: '#fff', letterSpacing: 1 }}>
                     {selectedLesson.status === 'completed' ? 'REJOUER' : 'COMMENCER'}
                   </Text>
                 </View>
@@ -176,154 +128,14 @@ export default function HomeScreen({ navigation }) {
   );
 }
 
-const styles = StyleSheet.create({
-  safe: {
-    flex: 1,
-    backgroundColor: COLORS.background,
-  },
-  scroll: {
-    flex: 1,
-  },
-  scrollContent: {
-    paddingTop: 4,
-  },
-  xpSection: {
-    marginHorizontal: 16,
-    marginTop: 12,
-    marginBottom: 4,
-  },
-  xpRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 6,
-  },
-  xpLabel: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: COLORS.textMedium,
-  },
-  levelBadge: {
-    fontSize: 13,
-    fontWeight: '800',
-    color: COLORS.blue,
-  },
-  xpTrack: {
-    height: 10,
-    backgroundColor: COLORS.border,
-    borderRadius: 5,
-    overflow: 'hidden',
-  },
-  xpFill: {
-    height: '100%',
-    backgroundColor: COLORS.blue,
-    borderRadius: 5,
-  },
-  unitSection: {
-    marginBottom: 8,
-  },
-  nodesContainer: {
-    paddingVertical: 8,
-    paddingBottom: 20,
-  },
-  // Modal
-  overlay: {
-    position: 'absolute',
-    top: 0, left: 0, right: 0, bottom: 0,
-    backgroundColor: 'rgba(0,0,0,0.45)',
-  },
+const s = StyleSheet.create({
   modal: {
-    position: 'absolute',
-    bottom: 0, left: 0, right: 0,
-    backgroundColor: COLORS.background,
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
+    position: 'absolute', bottom: 0, left: 0, right: 0,
+    borderTopLeftRadius: 24, borderTopRightRadius: 24,
     paddingBottom: 40,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: -4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 12,
-    elevation: 20,
+    shadowColor: '#000', shadowOffset: { width: 0, height: -4 }, shadowOpacity: 0.2, shadowRadius: 12, elevation: 20,
   },
-  modalHandle: {
-    width: 40,
-    height: 4,
-    backgroundColor: COLORS.border,
-    borderRadius: 2,
-    alignSelf: 'center',
-    marginTop: 12,
-    marginBottom: 4,
-  },
-  modalContent: {
-    padding: 24,
-    alignItems: 'center',
-  },
-  modalIconWrap: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: COLORS.backgroundGray,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 12,
-  },
-  modalIcon: {
-    fontSize: 40,
-  },
-  modalTitle: {
-    fontSize: 24,
-    fontWeight: '800',
-    color: COLORS.textDark,
-    marginBottom: 6,
-  },
-  modalDesc: {
-    fontSize: 16,
-    color: COLORS.textMedium,
-    textAlign: 'center',
-    marginBottom: 20,
-  },
-  statsRow: {
-    flexDirection: 'row',
-    gap: 10,
-    marginBottom: 24,
-  },
-  statChip: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 5,
-    backgroundColor: COLORS.backgroundGray,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 20,
-  },
-  statChipIcon: {
-    fontSize: 14,
-  },
-  statChipText: {
-    fontSize: 13,
-    fontWeight: '700',
-    color: COLORS.textDark,
-  },
-  startBtnWrap: {
-    width: '100%',
-  },
-  startBtnShadow: {
-    position: 'absolute',
-    bottom: -4,
-    left: 0, right: 0,
-    height: 52,
-    backgroundColor: COLORS.greenShadow,
-    borderRadius: 16,
-  },
-  startBtn: {
-    backgroundColor: COLORS.green,
-    borderRadius: 16,
-    paddingVertical: 16,
-    alignItems: 'center',
-  },
-  startBtnText: {
-    fontSize: 16,
-    fontWeight: '800',
-    color: '#fff',
-    letterSpacing: 1,
-  },
+  handle: { width: 40, height: 4, borderRadius: 2, alignSelf: 'center', marginTop: 12, marginBottom: 4 },
+  iconWrap: { width: 80, height: 80, borderRadius: 40, alignItems: 'center', justifyContent: 'center', marginBottom: 12 },
+  chip: { flexDirection: 'row', alignItems: 'center', gap: 5, paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20 },
 });

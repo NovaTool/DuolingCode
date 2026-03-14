@@ -1,25 +1,31 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { AppProvider } from './src/context/AppContext';
+import { AppProvider, useApp } from './src/context/AppContext';
+import { ThemeProvider, useTheme } from './src/context/ThemeContext';
 import AppNavigator from './src/navigation/AppNavigator';
-import OnboardingScreen from './src/screens/OnboardingScreen';
-import { COLORS } from './src/constants/colors';
+import OnboardingFlow from './src/screens/OnboardingFlow';
+
+function Root() {
+  const { isOnboarded } = useApp();
+  const { isDark } = useTheme();
+  return (
+    <>
+      <StatusBar style={isDark ? 'light' : 'dark'} />
+      {isOnboarded ? <AppNavigator /> : <OnboardingFlow />}
+    </>
+  );
+}
 
 export default function App() {
-  const [showOnboarding, setShowOnboarding] = useState(true);
-
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
         <AppProvider>
-          <StatusBar style="light" backgroundColor={COLORS.background} />
-          {showOnboarding ? (
-            <OnboardingScreen onFinish={() => setShowOnboarding(false)} />
-          ) : (
-            <AppNavigator />
-          )}
+          <ThemeProvider initialDark={true}>
+            <Root />
+          </ThemeProvider>
         </AppProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>
